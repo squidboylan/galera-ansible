@@ -1,0 +1,6 @@
+---
+- name: Start and enable galera
+  service:
+    name: mysql
+    state: started
+    enabled: yes

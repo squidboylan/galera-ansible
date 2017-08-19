@@ -1,0 +1,4 @@
+---
+- name: bootstrap first node
+  shell: /usr/bin/mysqld_bootstrap
+  when: install_binaries.changed

@@ -7,7 +7,7 @@
   roles:
     - create_server
 
-- name: instal python2
+- name: install python2
   hosts: galera_servers
   user: ubuntu
   become: true
@@ -17,3 +17,33 @@
     - "vars/{{ env }}.yml"
   roles:
     - python2
+
+- name: install galera
+  hosts: galera_servers
+  user: ubuntu
+  become: true
+  become_user: root
+  vars_files:
+    - "vars/{{ env }}.yml"
+  roles:
+    - install_galera
+
+- name: bootstrap galera
+  hosts: galera_servers[0]
+  user: ubuntu
+  become: true
+  become_user: root
+  vars_files:
+    - "vars/{{ env }}.yml"
+  roles:
+    - bootstrap_galera
+
+- name: start galera
+  hosts: galera_servers
+  user: ubuntu
+  become: true
+  become_user: root
+  vars_files:
+    - "vars/{{ env }}.yml"
+  roles:
+    - start_galera
