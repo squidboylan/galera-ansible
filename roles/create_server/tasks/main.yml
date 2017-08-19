@@ -1,0 +1,85 @@
+---
+- name: Create galera server security group
+  os_security_group:
+    name: galera
+    state: present
+    cloud: "{{ auth.cloud }}"
+
+- name: galera server expose 3306
+  os_security_group_rule:
+    security_group: galera
+    state: present
+    cloud: "{{ auth.cloud }}"
+    port_range_min: 3306
+    port_range_max: 3306
+    protocol: tcp
+    remote_ip_prefix: "0.0.0.0/0"
+
+- name: galera server expose 4567 TCP
+  os_security_group_rule:
+    security_group: galera
+    state: present
+    cloud: "{{ auth.cloud }}"
+    port_range_min: 4567
+    port_range_max: 4567
+    protocol: tcp
+    remote_group: galera
+
+- name: galera server expose 4567 UDP
+  os_security_group_rule:
+    security_group: galera
+    state: present
+    cloud: "{{ auth.cloud }}"
+    port_range_min: 4567
+    port_range_max: 4567
+    protocol: udp
+    remote_group: galera
+
+- name: galera server expose 4568
+  os_security_group_rule:
+    security_group: galera
+    state: present
+    cloud: "{{ auth.cloud }}"
+    port_range_min: 4568
+    port_range_max: 4568
+    protocol: tcp
+    remote_group: galera
+
+- name: galera server expose 4444
+  os_security_group_rule:
+    security_group: galera
+    state: present
+    cloud: "{{ auth.cloud }}"
+    port_range_min: 4444
+    port_range_max: 4444
+    protocol: tcp
+    remote_group: galera
+
+- name: Create galera servers
+  os_server:
+    name: galera-{{ item }}
+    cloud: "{{ auth.cloud }}"
+    state: present
+    key_name: "{{ auth.key_name }}"
+    image: "{{ galera.image }}"
+    timeout: 200
+    flavor: "{{ galera.flavor }}"
+    network: "{{ galera.network }}"
+    auto_ip: true
+    security_groups: galera,default
+  register: galera_server_list
+  with_sequence: count={{ galera.servers }}
+
+- name: Add galera servers to the galera_servers group
+  add_host:
+    name: "{{ item.openstack.public_v4 }}"
+    groups: galera_servers
+  with_items: "{{ galera_server_list.results }}"
+
+- name: wait for ssh
+  wait_for:
+    host: "{{ item }}"
+    port: 22
+    timeout: 60
+    state: started
+  with_items: "{{ groups.galera_servers }}"

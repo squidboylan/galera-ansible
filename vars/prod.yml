@@ -1,0 +1,13 @@
+galera:
+  servers: 3
+
+  network: public
+
+  image: Ubuntu-16.04
+
+  flavor: 200
+
+auth:
+  cloud: dreamcompute
+
+  key_name: abathur

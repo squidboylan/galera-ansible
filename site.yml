@@ -1,0 +1,19 @@
+---
+- name: provision servers
+  hosts: localhost
+  connection: local
+  vars_files:
+    - "vars/{{ env }}.yml"
+  roles:
+    - create_server
+
+- name: instal python2
+  hosts: galera_servers
+  user: ubuntu
+  become: true
+  become_user: root
+  gather_facts: false
+  vars_files:
+    - "vars/{{ env }}.yml"
+  roles:
+    - python2
